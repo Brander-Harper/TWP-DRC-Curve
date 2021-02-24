@@ -1,0 +1,15 @@
+Package: DRcurves
+Title: Fit a suite of dose-response curves to data
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Will",
+           family = "White",
+           role = c("aut", "cre"),
+           email = "will.white@oregonstate.edu",
+           comment = c(ORCID = "0000-0003-3242-2454"))
+Description: Fit linear, sigmoidal, and unimodal dose-response curves to data using maximum likelihood. Use likelihood ratio tests to compare fit to a null model; use AIC to choose most parsimonious model. Create and save plots.
+License: `use_mit_license()`
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
