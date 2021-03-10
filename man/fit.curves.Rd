@@ -8,9 +8,12 @@ fit.curves(
   X,
   Y,
   Fname = "",
+  Figname = "",
+  FigDir = "",
   Ylab = "Y",
   Xlab = "X",
   axis.font = 0.75,
+  log.base = NA,
   log.factor = 0,
   FigW = 7,
   FigH = 7,
@@ -27,11 +30,17 @@ fit.curves(
 
 \item{Fname}{filename for saving figures}
 
+\item{Figname}{Title to appear on figures}
+
+\item{FigDir}{Directory where figures will be saved}
+
 \item{Ylab}{Ylabel for figures}
 
 \item{Xlab}{Xlabel for figures}
 
 \item{axis.font}{fontsize for figures}
+
+\item{log.base}{What base used to transform concentrations (NA = no transformation)}
 
 \item{log.factor}{value added to log-transformed data to avoid log(0)}
 
@@ -41,7 +50,9 @@ fit.curves(
 
 \item{SigInit}{2-element vector with start values for sigmoidal function}
 
-\item{Uni6Init}{5-element vector with start values for 5-param unimodal}
+\item{Uni6Init}{6-element vector with start values for 5-param unimodal}
+
+\item{Uni5Init}{5-element vector with start values for 6-param unimodal}
 
 \item{reltol}{numerical tolerance for mle2}
 }

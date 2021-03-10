@@ -5,15 +5,18 @@
 #' @param X concentrations
 #' @param Y response values
 #' @param Fname filename for saving figures
+#' @param Figname Title to appear on figures
+#' @param FigDir Directory where figures will be saved
 #' @param Ylab Ylabel for figures
 #' @param Xlab Xlabel for figures
 #' @param axis.font fontsize for figures
+#' @param log.base What base used to transform concentrations (NA = no transformation)
 #' @param log.factor value added to log-transformed data to avoid log(0)
 #' @param FigW Figure width
 #' @param FigH Figure height
 #' @param SigInit 2-element vector with start values for sigmoidal function
-#' @param Uni6Init 6-element vector with start values for 6-param unimodal
-#' @param Uni6Init 5-element vector with start values for 5-param unimodal
+#' @param Uni5Init 5-element vector with start values for 6-param unimodal
+#' @param Uni6Init 6-element vector with start values for 5-param unimodal
 #' @param reltol numerical tolerance for mle2
 #'
 #' @import bbmle
@@ -33,7 +36,8 @@
 #' @export
 
 
-fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.factor = 0,
+fit.curves = function(X,Y,Fname = '',Figname='',FigDir='',Ylab='Y',Xlab='X',axis.font = 0.75,
+                      log.base = NA, log.factor = 0,
                       FigW=7,FigH=7,SigInit=c(0,0),Uni6Init=c(0,-1,2,2,2,2),
                       Uni5Init=NA,reltol=1e-4){
 
@@ -118,11 +122,13 @@ fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.fact
   # Choose best model based on AIC:
   #Best = match(min(AIC.table$dAICc),AIC.table$dAICc)
 
-  Title = Fname #paste(Cycle,' cycle')
-  Xticks = unique(Db$Treatment)
-  Xticks.at = log10(Xticks + log.factor)
-  # some plotting labeling settings suppressed for now, to allow easy plotting of
-  # wider data range
+  Title = Figname 
+  Xticks.at = unique(X) # locations of xticks
+  if (is.na(log.base)){ # if the x-axis is arithmetic, no action needed
+    Xticks = Xticks.at} # if logarithmic, transform values to be expressed in arithmetic scale
+  else{
+  Xticks = round(log.base^(Xticks.at) - log.factor,digits=1)}
+  
 
   # This opens a new graphic window of a specific size, to be saved as a pdf file
   # You can adjust these
@@ -163,7 +169,7 @@ fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.fact
     Pr = B[1]+B[2]*X
     Resid = Y-X
     lines(X_temp,P,lty=Lty)
-    File.name = paste("dose_response_figures/",Fname,"_linear_dose_response.pdf",sep="")
+    File.name = paste(FigDir,Fname,"_linear_dose_response.pdf",sep="")
     dev.print(device=pdf,file=File.name,useDingbats=FALSE)
   }
   if (Best==2){ # Quadratic
@@ -172,7 +178,7 @@ fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.fact
     Pr = B[1]+B[2]*(X-B[3])^2
     Resid = Y-X
     lines(X_temp,P,lty=Lty)
-    File.name = paste("dose_response_figures/",Fname,"_quadratic_dose_response.pdf",sep="")
+    File.name = paste(FigDir,Fname,"_quadratic_dose_response.pdf",sep="")
     dev.print(device=pdf,file=File.name,useDingbats=FALSE)
   }
   if (Best==3){ # Sigmoidal
@@ -181,7 +187,7 @@ fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.fact
     Pr = (B[2]-B[1])/(1+exp(B[3] + B[4]*X))+B[1]
     Resid = Y-X
     lines(X_temp,P,lty=Lty)
-    File.name = paste("dose_response_figures/",Fname,"_sigmoidal_dose_response.pdf",sep="")
+    File.name = paste(FigDir,Fname,"_sigmoidal_dose_response.pdf",sep="")
     dev.print(device=pdf,file=File.name,useDingbats=FALSE)
   }
   if (Best==4){ # Uni6
@@ -190,7 +196,7 @@ fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.fact
     Pr = B[1]+B[2]*(1 + exp(-(B[3]+B[4]*X)))/(1+exp(-(B[5] + B[6]*X)))
     Resid = Y-X
     lines(X_temp,P,lty=Lty)
-    File.name = paste("dose_response_figures/",Fname,"_unimodal6_dose_response.pdf",sep="")
+    File.name = paste(FigDir,Fname,"_unimodal6_dose_response.pdf",sep="")
     dev.print(device=pdf,file=File.name,useDingbats=FALSE)
   }
   if (Best==5){ # Uni5
@@ -199,7 +205,7 @@ fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.fact
     Pr = B[1]+B[2]*(1 + B[3]*X)/(1+exp(-(B[4] + B[5]*X)))
     Resid = Y-X
     lines(X_temp,P,lty=Lty)
-    File.name = paste("dose_response_figures/",Fname,"_unimodal5_dose_response.pdf",sep="")
+    File.name = paste(FigDir,Fname,"_unimodal5_dose_response.pdf",sep="")
     dev.print(device=pdf,file=File.name,useDingbats=FALSE)
     dev.off()
   }
@@ -216,7 +222,7 @@ fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.fact
          Linux = {x11(width=FigW,height=FigH)})
   qqnorm(y=Resid)
   qqline(y=Resid)
-  File.name = paste("dose_response_figures/",Fname,"_bestmodel_qqplot.pdf",sep="")
+  File.name = paste(FigDir,Fname,"_bestmodel_qqplot.pdf",sep="")
   dev.print(device=pdf,file=File.name,useDingbats=FALSE)
   dev.off()
 
@@ -225,4 +231,4 @@ fit.curves = function(X,Y,Fname = '',Ylab='Y',Xlab='X',axis.font = 0.75,log.fact
               "AIC"=AIC.table,"ANOVA"=ANOVA,'FN'=File.name,'B'=Best,
               "Pval"=Pval))
 }
-#parnames(fit.curves) = c('Db','Cycle')
+
